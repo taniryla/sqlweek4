@@ -13,3 +13,23 @@ CREATE TABLE employees_log (
 	FOREIGN KEY (employee_id) REFERENCES employees (id)
 	ON DELETE CASCADE
 );
+
+CREATE FUNCTION log_new_employee() RETURNS trigger AS $$
+	BEGIN
+		INSERT INTO employees_log (description, employee_id) VALUES (
+			'Employee created.',
+			NEW.id
+		);
+		RETURN NEW;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER log_new_employee AFTER INSERT ON employees
+	FOR EACH ROW EXECUTE FUNCTION log_new_employee();
+
+INSERT INTO employees (salary, name) values (55000, 'Alice');
+INSERT INTO employees (salary, name) values (66000, 'Bob');
+
+SELECT e.*, el.description, el.created_at
+FROM employees_log el
+JOIN employees e ON el.employee_id = e.id;
