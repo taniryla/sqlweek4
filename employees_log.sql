@@ -33,3 +33,22 @@ INSERT INTO employees (salary, name) values (66000, 'Bob');
 SELECT e.*, el.description, el.created_at
 FROM employees_log el
 JOIN employees e ON el.employee_id = e.id;
+
+CREATE FUNCTION log_salary_update() RETURNS trigger AS $$
+	BEGIN
+		INSERT INTO employees_log (description, employee_id) VALUES (
+			'Salary updated from' ||OLD.salary||' to ' ||NEW.salary,
+			NEW.id
+		);
+		RETURN NEW;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER log_salary_update AFTER UPDATE OF salary ON employees
+	FOR EACH ROW EXECUTE FUNCTION log_salary_update();
+
+UPDATE employees SET salary = 80000 WHERE name = 'Alice';
+
+SELECT e.*, el.description, el.created_at
+FROM employees_log el
+JOIN employees e ON el.employee_id = e.id;
