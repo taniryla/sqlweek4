@@ -52,3 +52,9 @@ UPDATE employees SET salary = 80000 WHERE name = 'Alice';
 SELECT e.*, el.description, el.created_at
 FROM employees_log el
 JOIN employees e ON el.employee_id = e.id;
+
+UPDATE employees SET name = 'Alice B. Cool' WHERE name = 'Alice';
+
+SELECT e.*, el.description, el.created_at
+FROM employees_log el
+JOIN employees e ON el.employee_id = e.id;
